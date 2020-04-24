@@ -1,5 +1,6 @@
 package com.silence.community.controller;
 
+import com.silence.community.dto.PaginationDTO;
 import com.silence.community.dto.QuestionDTO;
 import com.silence.community.mapper.QuestionMapper;
 import com.silence.community.mapper.UserMapper;
@@ -27,6 +28,8 @@ public class IndexController {
 
     @GetMapping("/")
     public String index(HttpServletRequest request,
+                        @RequestParam(name = "page",defaultValue = "1") Integer page,
+                        @RequestParam(name = "size",defaultValue = "5") Integer size,
                         Model model){
         Cookie[] cookies=request.getCookies();
         if(cookies!=null&&cookies.length!=0){
@@ -42,8 +45,8 @@ public class IndexController {
             }
         }
 
-        List<QuestionDTO> questionList=questionService.list();
-        model.addAttribute("questions",questionList);
+        PaginationDTO paginationDTO=questionService.list(page,size);
+        model.addAttribute("paginationDTO",paginationDTO);
         return "index";
     }
 }
