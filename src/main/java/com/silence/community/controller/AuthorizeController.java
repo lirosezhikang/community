@@ -37,15 +37,23 @@ public class AuthorizeController {
     public String callback(@RequestParam(name="code") String code,
                            @RequestParam(name="state") String state,
                            HttpServletResponse response){
+//      构造accessTokenDTO
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setCode(code);
         accessTokenDTO.setClient_id(clientId);
         accessTokenDTO.setClient_secret(clientSecret);
         accessTokenDTO.setRedirect_uri(redirectUri);
         accessTokenDTO.setState(state);
+
+//      根据accessTokenDTO获得accessToken
         String accessToken = githubProvider.getAccessToken(accessTokenDTO);
+
+//      根据accessToken获得GitHub的User信息
         GithubUser githubUser = githubProvider.getUser(accessToken);
+
+//      将GitHub的User信息放到User对象中，并将User对象插到数据库的User表中
         if (githubUser!=null){
+            //构建User对象
             User user = new User();
             String token = UUID.randomUUID().toString();
             user.setToken(token);
@@ -54,6 +62,7 @@ public class AuthorizeController {
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
             user.setAvatarUrl(githubUser.getAvatarUrl());
+            //插入User表中
             userMapper.insertUser(user);
             //登录成功，写cookie和session
             response.addCookie(new Cookie("token",token));

@@ -26,25 +26,83 @@ public class QuestionService {
     public PaginationDTO list(Integer page, Integer size) {
 
         PaginationDTO paginationDTO = new PaginationDTO();
+
+        Integer totalPage;
 //      获取数据库中的问题总数
         Integer totalCount = questionMapper.count();
-//      根据总数，页码号，单页容量给PaginationDTO赋值
-        paginationDTO.setPagination(totalCount,page,size);
+
+//      判断页码号
+        if(totalCount%size==0){
+            totalPage=totalCount/size;
+        }else{
+            totalPage=totalCount/size+1;
+        }
 
 //      判断页码号
         if(page<1){
             page=1;
         }
 
-        if(page>paginationDTO.getTotalPage()){
-            page=paginationDTO.getTotalPage();
+        if(page>totalPage){
+            page=totalPage;
         }
 
+
+        //      根据总数，页码号，单页容量给PaginationDTO赋值
+        paginationDTO.setPagination(totalPage,page);
 
 //      根据页码page计算偏移量offset
         Integer offset=size*(page-1);
 
         List<Question> questions=questionMapper.list(offset,size);
+        List<QuestionDTO> questionDTOList=new ArrayList<>();
+
+
+        for(Question question:questions){
+            User user=userMapper.findById(question.getCreator());
+            QuestionDTO questionDTO=new QuestionDTO();
+            BeanUtils.copyProperties(question,questionDTO);
+            questionDTO.setUser(user);
+            questionDTOList.add(questionDTO);
+        }
+
+        paginationDTO.setQuestionDTOList(questionDTOList);
+
+
+
+
+        return paginationDTO;
+    }
+
+    public PaginationDTO list(Integer userId, Integer page, Integer size) {
+        PaginationDTO paginationDTO = new PaginationDTO();
+        Integer totalPage;
+
+//      根据userId获取数据库中的问题总数
+        Integer totalCount = questionMapper.countByUserId(userId);
+
+        if(totalCount%size==0){
+            totalPage=totalCount/size;
+        }else{
+            totalPage=totalCount/size+1;
+        }
+
+//      判断页码号
+        if(page<1){
+            page=1;
+        }
+
+        if(page>totalPage){
+            page=totalPage;
+        }
+
+
+//      根据总数，页码号，单页容量给PaginationDTO赋值
+        paginationDTO.setPagination(totalPage,page);
+//      根据页码page计算偏移量offset
+        Integer offset=size*(page-1);
+
+        List<Question> questions=questionMapper.listByUserId(userId,offset,size);
         List<QuestionDTO> questionDTOList=new ArrayList<>();
 
 
