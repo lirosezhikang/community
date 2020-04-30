@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+//加@EnableWebMvc会拦截静态资源
 //@EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
